@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DETECTOR DE VIOLÈNCIES DIGITALS</title>
+  <style>
+    :root {
+      --bg-paper: #f4f2ee;
+      --bg-paper-alt: #ece9e2;
+      --ink: #3b3936;
+      --ink-light: #68645e;
+      --line: #3b3936;
+      --line-muted: #b8b3aa;
+      --accent-alert: #9e2a2b;
+      --accent-alert-bg: #ebe2de;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border-radius: 0 !important;
+    }
+
+    body {
+      font-family: "Helvetica Neue", Helvetica, "Inter", Arial, sans-serif;
+      background-color: var(--bg-paper);
+      color: var(--ink);
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 20px 16px 40px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Marc estructural principal estil graella suïssa */
+    .sheet-frame {
+      max-width: 980px;
+      margin: 0 auto;
+      border: 1px solid var(--line);
+      background-color: var(--bg-paper);
+    }
+
+    /* Fila superior */
+    .meta-top-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.82rem;
+      letter-spacing: 0.03em;
+    }
+
+    @media (min-width: 640px) {
+      .meta-top-grid {
+        grid-template-columns: 1.75fr 1fr auto;
+      }
+    }
+
+    .meta-cell {
+      padding: 10px 16px;
+      min-height: 40px;
+      border-right: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      text-transform: uppercase;
+      font-weight: 400;
+      color: var(--ink);
+    }
+
+    .meta-cell-secondary {
+      display: none;
+    }
+
+    @media (min-width: 640px) {
+      .meta-cell-secondary {
+        display: flex;
+      }
+    }
+
+    .meta-cell-exit {
+      padding: 0;
+      border-right: none;
+    }
+
+    .btn-quick-exit {
+      width: 100%;
+      height: 100%;
+      min-height: 40px;
+      padding: 10px 18px;
+      background-color: var(--ink);
+      color: var(--bg-paper);
+      border: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn-quick-exit:hover {
+      background-color: var(--accent-alert);
+    }
+
+    /* Capçalera asimètrica (només visible a l'inici) */
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      border-bottom: 1px solid var(--line);
+    }
+
+    @media (min-width: 760px) {
+      .hero-grid {
+        grid-template-columns: 1.75fr 1fr;
+      }
+    }
+
+    .hero-main {
+      padding: 36px 28px 34px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    @media (min-width: 760px) {
+      .hero-main {
+        padding: 44px 40px 40px;
+        border-bottom: none;
+        border-right: 1px solid var(--line);
+      }
+    }
+
+    .hero-main h1 {
+      font-size: clamp(1.9rem, 4.2vw, 2.85rem);
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      color: var(--ink);
+      padding-bottom: 24px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1.05rem, 2vw, 1.32rem);
+      font-weight: 400;
+      line-height: 1.38;
+      color: var(--ink);
+      max-width: 540px;
+    }
+
+    .hero-aside {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+      background-color: var(--bg-paper);
+    }
+
+    @media (min-width: 760px) {
+      .hero-aside {
+        padding: 44px 32px 40px;
+      }
+    }
+
+    .aside-block-title {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-light);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .aside-text {
+      font-size: 0.88rem;
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    .aside-shortcut {
+      border-top: 1px solid var(--line-muted);
+      padding-top: 14px;
+      font-size: 0.8rem;
+      color: var(--ink-light);
+    }
+
+    /* Àrea de contingut dinàmic */
+    .workspace {
+      padding: 32px 28px 40px;
+    }
+
+    @media (min-width: 760px) {
+      .workspace {
+        padding: 40px 40px 48px;
+      }
+    }
+
+    /* Graella de passos a l'inici */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      border: 1px solid var(--line);
+      margin-bottom: 32px;
+    }
+
+    @media (min-width: 680px) {
+      .steps-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .step-cell {
+      padding: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    @media (min-width: 680px) {
+      .step-cell {
+        border-bottom: none;
+        border-right: 1px solid var(--line);
+      }
+      .step-cell:last-child {
+        border-right: none;
+      }
+    }
+
+    .step-cell:last-child {
+      border-bottom: none;
+    }
+
+    .step-code {
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+      color: var(--ink-light);
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .step-cell h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      margin-bottom: 6px;
+    }
+
+    .step-cell p {
+      font-size: 0.88rem;
+      color: var(--ink-light);
+    }
+
+    /* Botons tipogràfics */
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 13px 24px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .btn-solid {
+      background-color: var(--ink);
+      color: var(--bg-paper);
+    }
+
+    .btn-solid:hover:not(:disabled) {
+      background-color: #242321;
+    }
+
+    .btn-solid:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--ink);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--bg-paper-alt);
+    }
+
+    /* Glossari desplegable */
+    .glossary-section {
+      margin-top: 36px;
+      padding-top: 28px;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-kicker {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-light);
+      margin-bottom: 16px;
+    }
+
+    .glossary-table-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      border: 1px solid var(--line);
+    }
+
+    @media (min-width: 720px) {
+      .glossary-table-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .glossary-cell {
+      padding: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    @media (min-width: 720px) {
+      .glossary-cell:nth-child(odd) {
+        border-right: 1px solid var(--line);
+      }
+      .glossary-cell:nth-last-child(-n+2) {
+        border-bottom: none;
+      }
+    }
+
+    .glossary-cell:last-child {
+      border-bottom: none;
+    }
+
+    .glossary-cell h3 {
+      font-size: 0.96rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .glossary-cell p {
+      font-size: 0.88rem;
+      margin-bottom: 10px;
+      color: var(--ink);
+    }
+
+    .glossary-ex {
+      font-size: 0.82rem;
+      color: var(--ink-light);
+      border-top: 1px solid var(--line-muted);
+      padding-top: 8px;
+    }
+
+    /* Pantalla Qüestionari */
+    .quiz-status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .progress-line-wrap {
+      width: 100%;
+      height: 2px;
+      background-color: var(--line-muted);
+      margin-bottom: 28px;
+    }
+
+    .progress-line-fill {
+      height: 100%;
+      background-color: var(--ink);
+      width: 0%;
+      transition: width 0.25s ease;
+    }
+
+    .q-title {
+      font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+      font-weight: 600;
+      line-height: 1.32;
+      margin-bottom: 12px;
+      color: var(--ink);
+    }
+
+    .q-context {
+      font-size: 0.92rem;
+      color: var(--ink-light);
+      margin-bottom: 28px;
+      max-width: 680px;
+    }
+
+    .options-stack {
+      border: 1px solid var(--line);
+      margin-bottom: 28px;
+    }
+
+    .option-row {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--line);
+      padding: 16px 20px;
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 14px;
+      align-items: start;
+      color: var(--ink);
+      transition: background-color 0.12s ease;
+    }
+
+    .option-row:last-child {
+      border-bottom: none;
+    }
+
+    .option-row:hover {
+      background-color: var(--bg-paper-alt);
+    }
+
+    .option-row.selected {
+      background-color: var(--ink);
+      color: var(--bg-paper);
+    }
+
+    .option-box-mark {
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--ink);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .option-row.selected .option-box-mark {
+      border-color: var(--bg-paper);
+      background-color: var(--bg-paper);
+      color: var(--ink);
+    }
+
+    .option-main-text {
+      display: block;
+      font-size: 0.96rem;
+      font-weight: 600;
+    }
+
+    .option-sub-text {
+      display: block;
+      font-size: 0.84rem;
+      color: var(--ink-light);
+      margin-top: 2px;
+    }
+
+    .option-row.selected .option-sub-text {
+      color: #d6d2c9;
+    }
+
+    .quiz-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Pantalla Resultats + Radar */
+    .verdict-panel {
+      border: 1px solid var(--line);
+      padding: 24px 28px;
+      margin-bottom: 28px;
+    }
+
+    .verdict-panel.is-high {
+      background-color: var(--accent-alert-bg);
+    }
+
+    .verdict-panel.is-medium {
+      background-color: var(--bg-paper-alt);
+    }
+
+    .verdict-code {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .verdict-panel h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      line-height: 1.25;
+      margin-bottom: 10px;
+    }
+
+    .verdict-panel p {
+      font-size: 0.94rem;
+      color: var(--ink);
+    }
+
+    /* Graella KPI */
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      border: 1px solid var(--line);
+      margin-bottom: 32px;
+    }
+
+    @media (min-width: 680px) {
+      .kpi-strip {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .kpi-cell {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+    }
+
+    .kpi-cell:nth-child(2n) {
+      border-right: none;
+    }
+
+    @media (min-width: 680px) {
+      .kpi-cell {
+        border-bottom: none;
+      }
+      .kpi-cell:nth-child(2n) {
+        border-right: 1px solid var(--line);
+      }
+      .kpi-cell:last-child {
+        border-right: none;
+      }
+    }
+
+    .kpi-cell:nth-last-child(-n+2) {
+      border-bottom: none;
+    }
+
+    .kpi-num {
+      font-size: 1.65rem;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .kpi-lbl {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--ink-light);
+    }
+
+    /* Secció del Radar */
+    .radar-module {
+      border: 1px solid var(--line);
+      margin-bottom: 36px;
+    }
+
+    .radar-module-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      background-color: var(--bg-paper-alt);
+    }
+
+    .radar-module-header h3 {
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .radar-module-header span {
+      font-size: 0.78rem;
+      color: var(--ink-light);
+      text-transform: uppercase;
+    }
+
+    .radar-body-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 780px) {
+      .radar-body-grid {
+        grid-template-columns: 1.25fr 1fr;
+      }
+    }
+
+    .radar-svg-box {
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+    }
+
+    @media (min-width: 780px) {
+      .radar-svg-box {
+        border-bottom: none;
+        border-right: 1px solid var(--line);
+      }
+    }
+
+    .radar-svg {
+      width: 100%;
+      max-width: 430px;
+      height: auto;
+      overflow: visible;
+    }
+
+    .radar-legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 10px;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .legend-entry {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .legend-swatch {
+      width: 16px;
+      height: 2px;
+      display: inline-block;
+    }
+
+    .radar-readout {
+      margin-top: 14px;
+      width: 100%;
+      border-top: 1px solid var(--line-muted);
+      padding-top: 10px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--ink);
+    }
+
+    .axis-table {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .axis-row-cell {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .axis-row-cell:last-child {
+      border-bottom: none;
+    }
+
+    .axis-row-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.84rem;
+      margin-bottom: 6px;
+      gap: 8px;
+    }
+
+    .axis-row-name {
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+    }
+
+    .axis-row-val {
+      font-size: 0.78rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--ink-light);
+    }
+
+    .axis-meter {
+      width: 100%;
+      height: 5px;
+      border: 1px solid var(--line);
+      background: transparent;
+    }
+
+    .axis-meter-bar {
+      height: 100%;
+      background-color: var(--ink);
+    }
+
+    .axis-meter-bar.is-alert {
+      background-color: var(--accent-alert);
+    }
+
+    /* Detall per categories */
+    .block-divider-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding-bottom: 10px;
+      margin: 36px 0 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .cat-detail-box {
+      border: 1px solid var(--line);
+      margin-bottom: 16px;
+    }
+
+    .cat-detail-top {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      background-color: var(--bg-paper-alt);
+    }
+
+    .cat-detail-top h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .cat-badge {
+      font-size: 0.74rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 3px 9px;
+      border: 1px solid var(--line);
+      background: var(--bg-paper);
+    }
+
+    .cat-badge.active {
+      background: var(--accent-alert);
+      color: var(--bg-paper);
+      border-color: var(--accent-alert);
+    }
+
+    .cat-badge.past {
+      background: var(--ink);
+      color: var(--bg-paper);
+    }
+
+    .cat-detail-body {
+      padding: 18px 20px;
+    }
+
+    .cat-detail-desc {
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+    }
+
+    .cat-advice-list {
+      border-top: 1px solid var(--line-muted);
+      padding-top: 12px;
+    }
+
+    .cat-advice-list strong {
+      display: block;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+
+    .cat-advice-list ul {
+      padding-left: 18px;
+      font-size: 0.88rem;
+    }
+
+    .cat-advice-list li {
+      margin-bottom: 5px;
+    }
+
+    /* Graella de seguretat i recursos */
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      border: 1px solid var(--line);
+    }
+
+    @media (min-width: 700px) {
+      .split-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .split-cell {
+      padding: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    @media (min-width: 700px) {
+      .split-cell:nth-child(odd) {
+        border-right: 1px solid var(--line);
+      }
+      .split-cell:nth-last-child(-n+2) {
+        border-bottom: none;
+      }
+    }
+
+    .split-cell:last-child {
+      border-bottom: none;
+    }
+
+    .split-cell h4 {
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .split-cell ul {
+      padding-left: 18px;
+      font-size: 0.86rem;
+    }
+
+    .split-cell li {
+      margin-bottom: 6px;
+    }
+
+    .resource-num {
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .resource-name {
+      font-size: 0.86rem;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .resource-info {
+      font-size: 0.83rem;
+      color: var(--ink-light);
+    }
+
+    /* Barra inferior del marc */
+    .meta-bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      border-top: 1px solid var(--line);
+      font-size: 0.8rem;
+      color: var(--ink);
+    }
+
+    @media (min-width: 680px) {
+      .meta-bottom-grid {
+        grid-template-columns: 1.75fr 1fr;
+      }
+    }
+
+    .meta-bottom-left {
+      padding: 12px 20px;
+      min-height: 44px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    @media (min-width: 680px) {
+      .meta-bottom-left {
+        border-bottom: none;
+        border-right: 1px solid var(--line);
+      }
+    }
+
+    .meta-bottom-right {
+      padding: 12px 20px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--ink-light);
+    }
+
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        padding: 0;
+        background: #ffffff;
+      }
+      .sheet-frame {
+        border: 1px solid #000000;
+      }
+      .cat-detail-box,
+      .radar-module,
+      .split-cell {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sheet-frame">
+    <!-- Barra superior modular -->
+    <div class="meta-top-grid">
+      <div class="meta-cell" id="topPrimaryLabel"></div>
+      <div class="meta-cell meta-cell-secondary"></div>
+      <div class="meta-cell meta-cell-exit no-print">
+        <button type="button" class="btn-quick-exit" id="btnQuickExit" title="Surt immediatament (o prem Esc dues vegades)">
+          Sortida ràpida [ESC X2]
+        </button>
+      </div>
+    </div>
+
+    <!-- Capçalera editorial asimètrica (NOMÉS ES MOSTRA A L'INICI) -->
+    <header id="heroHeader" class="hero-grid">
+      <div class="hero-main">
+        <h1>Detector de Violències Digitals</h1>
+        <p class="hero-subtitle">
+          Eina interactiva d'autodetecció per identificar conductes de violència en l'entorn digital, visualitzar-ne el perfil en radar i consultar pautes d'actuació.
+        </p>
+      </div>
+      <div class="hero-aside">
+        <div>
+          <div class="aside-block-title">Confidencialitat tècnica</div>
+          <p class="aside-text">
+            Execució local al navegador. No s'utilitzen galetes ni s'envien respostes a cap servidor extern.
+          </p>
+        </div>
+        <div class="aside-shortcut">
+          Prem la tecla <strong>ESC</strong> dues vegades seguides per tancar i redirigir la sessió a l'instant.
+        </div>
+      </div>
+    </header>
+
+    <!-- Àrea principal de contingut -->
+    <main class="workspace">
+
+      <!-- PANTALLA 1: INICI -->
+      <section id="screenIntro">
+        <div class="steps-grid">
+          <div class="step-cell">
+            <span class="step-code">01 / QÜESTIONARI</span>
+            <h2>12 preguntes</h2>
+            <p>Avaluació estructurada de situacions habituals a les xarxes socials, missatgeria i dispositius.</p>
+          </div>
+          <div class="step-cell">
+            <span class="step-code">02 / VISUALITZACIÓ</span>
+            <h2>Gràfic de radar</h2>
+            <p>Representació sobre 6 eixos que diferencia entre incidència actual i experiències passades.</p>
+          </div>
+          <div class="step-cell">
+            <span class="step-code">03 / ORIENTACIÓ</span>
+            <h2>Pautes i recursos</h2>
+            <p>Recomanacions per frenar l'agressió, preservar proves digitals i contactar amb serveis d'atenció.</p>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="btn btn-solid" id="btnStartQuiz">
+            Començar el qüestionari →
+          </button>
+          <button type="button" class="btn btn-outline" id="btnToggleGlossary">
+            Explorar les 6 categories
+          </button>
+        </div>
+
+        <div id="glossaryPanel" class="glossary-section hidden">
+          <div class="section-kicker">Tipologies de violència digital analitzades</div>
+          <div id="glossaryGrid" class="glossary-table-grid"></div>
+        </div>
+      </section>
+
+      <!-- PANTALLA 2: QÜESTIONARI -->
+      <section id="screenQuiz" class="hidden">
+        <div class="quiz-status-bar">
+          <span id="progressStepText">PREGUNTA 01 DE 12</span>
+          <span id="progressPercentText">8% COMPLETAT</span>
+        </div>
+        <div class="progress-line-wrap">
+          <div id="progressFill" class="progress-line-fill"></div>
+        </div>
+
+        <h2 id="questionText" class="q-title">Text de la pregunta</h2>
+        <p id="questionContext" class="q-context">Context de la pregunta</p>
+
+        <div id="optionsList" class="options-stack"></div>
+
+        <div class="quiz-controls">
+          <button type="button" class="btn btn-outline" id="btnPrevQuestion">
+            ← Anterior
+          </button>
+          <button type="button" class="btn btn-solid" id="btnNextQuestion" disabled>
+            Següent →
+          </button>
+        </div>
+      </section>
+
+      <!-- PANTALLA 3: RESULTATS I RADAR -->
+      <section id="screenResults" class="hidden">
+        <div id="verdictBanner" class="verdict-panel">
+          <span id="verdictCode" class="verdict-code">DIAGNÒSTIC ORIENTATIU</span>
+          <h2 id="verdictTitle">Resultat de l'anàlisi</h2>
+          <p id="verdictDescription">Descripció del resultat.</p>
+        </div>
+
+        <div id="kpiRow" class="kpi-strip"></div>
+
+        <!-- Mòdul de visualització radar -->
+        <div class="radar-module">
+          <div class="radar-module-header">
+            <h3>Mapa de radar per tipologia</h3>
+            <span>Escala d'incidència 0 – 100%</span>
+          </div>
+
+          <div class="radar-body-grid">
+            <div class="radar-svg-box">
+              <svg id="radarSvg" class="radar-svg" viewBox="0 0 460 390" role="img" aria-label="Gràfic de radar de violències digitals"></svg>
+              <div class="radar-legend-row">
+                <span class="legend-entry">
+                  <span class="legend-swatch" style="background: #9e2a2b;"></span>
+                  Situació actual
+                </span>
+                <span class="legend-entry">
+                  <span class="legend-swatch" style="background: #3b3936;"></span>
+                  Incidència acumulada
+                </span>
+              </div>
+              <div id="radarTooltip" class="radar-readout">
+                Selecciona o passa el cursor sobre un vèrtex per veure'n els valors.
+              </div>
+            </div>
+
+            <div id="axisBreakdown" class="axis-table"></div>
+          </div>
+        </div>
+
+        <!-- Desglossament per categories -->
+        <h3 class="block-divider-title">Anàlisi detallada i pautes per categoria</h3>
+        <div id="categoryResultsContainer"></div>
+
+        <!-- Preservació de proves i seguretat -->
+        <h3 class="block-divider-title">Preservació de proves i seguretat digital</h3>
+        <div class="split-grid">
+          <div class="split-cell">
+            <h4>Com preservar proves</h4>
+            <ul>
+              <li><strong>No esborris missatges ni bloquegis abans de guardar proves:</strong> fes captures de pantalla completes on es vegi la data, l'hora, el perfil o telèfon i l'URL.</li>
+              <li><strong>Desa els fitxers originals:</strong> guarda correus amb la capçalera completa, àudios i enllaços en un espai privat fora de l'abast de l'agressor.</li>
+              <li><strong>Certificació digital:</strong> si vols denunciar, pots certificar el contingut web o acudir a comissaria amb el dispositiu sense manipular.</li>
+            </ul>
+          </div>
+          <div class="split-cell">
+            <h4>Blindatge dels dispositius</h4>
+            <ul>
+              <li><strong>Canvia les contrasenyes</strong> des d'un dispositiu segur i activa la <strong>verificació en dos passos (2FA)</strong>.</li>
+              <li><strong>Revisa els dispositius vinculats:</strong> comprova les sessions obertes a WhatsApp Web, Google, Apple ID i xarxes socials, i tanca les desconegudes.</li>
+              <li><strong>Controla la ubicació:</strong> revisa quines aplicacions o contactes tenen accés al teu GPS en temps real.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Recursos d'ajuda -->
+        <h3 class="block-divider-title">Recursos d'atenció gratuïts i confidencials</h3>
+        <div class="split-grid">
+          <div class="split-cell">
+            <span class="resource-num">900 900 120</span>
+            <span class="resource-name">Atenció contra la violència masclista (Generalitat de Catalunya)</span>
+            <span class="resource-info">Gratuït, confidencial, 24 hores / 365 dies. També per WhatsApp al 601 001 122.</span>
+          </div>
+          <div class="split-cell">
+            <span class="resource-num">016</span>
+            <span class="resource-name">Atenció a totes les formes de violència contra les dones</span>
+            <span class="resource-info">24 hores, gratuït i sense rastre a la factura telefònica. WhatsApp: 600 000 016.</span>
+          </div>
+          <div class="split-cell">
+            <span class="resource-num">017</span>
+            <span class="resource-name">Línia d'Ajuda en Ciberseguretat (INCIBE)</span>
+            <span class="resource-info">Suport tècnic i legal gratuït per a casos de ciberassetjament, suplantació i seguretat de dispositius.</span>
+          </div>
+          <div class="split-cell">
+            <span class="resource-num">Canal Prioritari AEPD</span>
+            <span class="resource-name">Agència Espanyola de Protecció de Dades</span>
+            <span class="resource-info">Via d'urgència per retirar continguts sexuals o violents difosos a internet sense consentiment.</span>
+          </div>
+          <div class="split-cell">
+            <span class="resource-num">112 / Mossos d'Esquadra</span>
+            <span class="resource-name">Emergències i denúncia policial</span>
+            <span class="resource-info">En cas de perill immediat o per presentar denúncia. Atenció a la víctima Mossos: 601 001 122.</span>
+          </div>
+        </div>
+
+        <div class="btn-row no-print" style="margin-top: 32px;">
+          <button type="button" class="btn btn-solid" id="btnPrintResults">
+            Imprimir o desar informe en PDF
+          </button>
+          <button type="button" class="btn btn-outline" id="btnRestartQuiz">
+            ↻ Tornar a començar
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Barra inferior de peu de fitxa -->
+    <footer class="meta-bottom-grid">
+      <div class="meta-bottom-left">
+        <span id="footerBrand"></span>
+        <span id="footerDate"></span>
+      </div>
+      <div class="meta-bottom-right" id="footerNote"></div>
+    </footer>
+  </div>
+
+  <script>
+    const CATEGORIES = [
+      {
+        id: "ciberassatjament",
+        name: "Ciberassatjament",
+        shortName: "Ciberassatjament",
+        description: "Assetjament a través de correus electrònics, missatges, xarxes socials o altres canals digitals, amb continguts ofensius, intimidatoris o sexuals no desitjats.",
+        examples: "Insults, burles, comentaris sexistes, amenaces, missatges no desitjats, campanyes de desprestigi.",
+        advice: [
+          "Limita qui et pot enviar missatges directes, etiquetar-te o comentar les teves publicacions a les xarxes socials.",
+          "Recopila captures de pantalla dels missatges, perfils i comentaris abans de bloquejar o silenciar els comptes agressors.",
+          "Denuncia els comptes i continguts a través dels mecanismes interns de cada plataforma.",
+          "Comparteix el que estàs vivint amb el teu entorn de confiança o amb un servei d'atenció."
+        ]
+      },
+      {
+        id: "cyberstalking",
+        name: "Cyberstalking",
+        shortName: "Cyberstalking",
+        description: "Conductes reiterades i intencionades de vigilància, persecució o contacte no desitjat mitjançant eines digitals.",
+        examples: "Seguiment d'ubicació, vigilància de xarxes, trucades o missatges repetits, accés a comptes, instal·lació d'aplicacions de rastreig.",
+        advice: [
+          "Revisa minuciosament les aplicacions instal·lades al teu telèfon mòbil i desinstal·la qualsevol app desconeguda o sospitosa.",
+          "Desactiva la ubicació en temps real i revisa els permisos d'accés a la ubicació de totes les teves aplicacions.",
+          "No responguis als intents de contacte reiterats i guarda registre de totes les trucades i missatges.",
+          "Si sospites que hi ha programari espia al dispositiu, consulta amb el 017 (INCIBE) abans de fer canvis que puguin alertar la persona que et vigila."
+        ]
+      },
+      {
+        id: "vigilancia",
+        name: "Vigilància i control digital",
+        shortName: "Vigilància i control",
+        description: "Utilitzar tecnologies per controlar, supervisar o restringir les activitats, moviments i comunicacions.",
+        examples: "Revisió del mòbil, control de contrasenyes, exigència d'ubicació en temps real, vigilància de contactes, amenaces mitjançant missatges.",
+        advice: [
+          "Ningú no té dret a exigir-te les teves contrasenyes, revisar el teu mòbil ni controlar amb qui parles.",
+          "Canvia les claus d'accés del correu principal, xarxes socials i banca en línia des d'un dispositiu segur.",
+          "Comprova si tens comptes compartits al núvol (Google Fotos, iCloud) o sessions obertes en altres dispositius.",
+          "Si aquest control es produeix en l'àmbit de la parella o exparella, contacta amb el 900 900 120 o el 016 per rebre assessorament segur."
+        ]
+      },
+      {
+        id: "violencia_sexual",
+        name: "Violència sexual digital",
+        shortName: "Violència sexual",
+        description: "Agressions sexuals mediades per tecnologia, inclosa la difusió o amenaça de difusió d'imatges íntimes sense consentiment.",
+        examples: "Sèxting no consentit, revenge porn (porno venjatiu), extorsió sexual o sextorsió, manipulació d'imatges amb intel·ligència artificial.",
+        advice: [
+          "No cedeixis al xantatge ni paguis cap quantitat en casos de sextorsió: fer-ho no garanteix que esborrin el material.",
+          "Guarda els enllaços exactes (URL), captures de pantalla de les amenaces i dades del perfil que difon o amenaça de difondre les imatges.",
+          "Sol·licita la retirada urgent del contingut a través del Canal Prioritari de l'AEPD i denuncia-ho als Mossos d'Esquadra / Policia.",
+          "Recorda que la responsabilitat és únicament de qui difon, manipula o extorsiona."
+        ]
+      },
+      {
+        id: "discurs_odi",
+        name: "Discurs d'odi sexista",
+        shortName: "Discurs d'odi",
+        description: "Difondre missatges que menyspreen, discriminen, insulten o inciten a l'odi o a la violència contra les dones pel fet de ser dones.",
+        examples: "Comentaris misògins, amenaces de violació o mort, ridiculització pública, campanyes d'odi contra dones visibles.",
+        advice: [
+          "Si pateixes un atac coordinat, posa temporalment els teus perfils en mode privat i activa filtres de paraules clau als comentaris.",
+          "Delega en una persona de confiança la revisió i captura de proves dels missatges ofensius per protegir el teu benestar.",
+          "Documenta les amenaces greus i presenta denúncia formal aportant les URL i captures.",
+          "Busca el suport de col·lectius, xarxes de dones o entitats de defensa dels drets digitals."
+        ]
+      },
+      {
+        id: "doxing",
+        name: "Doxing i suplantació d'identitat",
+        shortName: "Doxing i suplantació",
+        description: "Publicació de dades personals per exposar, fustigar o localitzar una persona; o creació de perfils falsos en nom seu.",
+        examples: "Filtració d'adreça, telèfon o lloc de treball; comptes falsos; robatori d'identitat.",
+        advice: [
+          "Fes una cerca del teu nom complet, telèfon i adreça als cercadors per detectar on s'han publicat les teves dades i sol·licita'n la desindexació.",
+          "Avisa els teus contactes i entorn laboral si algú ha creat un perfil fals en nom teu.",
+          "Denuncia el perfil suplantador a la plataforma aportant la documentació acreditativa i presenta denúncia policial per usurpació d'identitat.",
+          "Reforça la privacitat dels teus comptes i evita publicar informació que permeti identificar rutines habituals."
+        ]
+      }
+    ];
+
+    const QUESTIONS = [
+      {
+        categoryId: "ciberassatjament",
+        text: "Has rebut missatges, correus o comentaris a les xarxes amb insults, burles, humiliacions o contingut sexual que no havies demanat?",
+        context: "Inclou missatges privats, respostes públiques o enviaments insistents que et fan sentir incòmoda o intimidada."
+      },
+      {
+        categoryId: "ciberassatjament",
+        text: "Algú ha iniciat rumors, campanyes de desprestigi o ha enviat amenaces contra tu a través de grups de missatgeria o xarxes socials?",
+        context: "Per exemple, difondre mentides per ridiculitzar-te o intimidar-te davant d'altres persones."
+      },
+      {
+        categoryId: "cyberstalking",
+        text: "Notes que algú vigila la teva activitat en línia, les teves connexions o et contacta de manera obsessiva malgrat que li hagis demanat que pari?",
+        context: "Inclou trucades repetides, creació de nous comptes per escriure't després de bloquejar-lo o seguiment dels teus moviments a les xarxes."
+      },
+      {
+        categoryId: "cyberstalking",
+        text: "Sospites que algú ha accedit als teus comptes sense permís o ha instal·lat alguna aplicació o sistema per rastrejar la teva ubicació?",
+        context: "Per exemple, que sàpiga on has estat o què has parlat sense que tu li hagis explicat."
+      },
+      {
+        categoryId: "vigilancia",
+        text: "La teva parella, exparella o una altra persona et revisa el telèfon mòbil, els missatges o t'exigeix les contrasenyes dels teus comptes?",
+        context: "També inclou el fet d'haver de donar explicacions constants sobre amb qui parles o qui et dona 'm'agrada'."
+      },
+      {
+        categoryId: "vigilancia",
+        text: "T'exigeixen que comparteixis la teva ubicació en temps real o que enviïs fotos per demostrar on ets i amb qui estàs?",
+        context: "Quan el control digital es fa servir per supervisar o limitar les teves sortides i relacions."
+      },
+      {
+        categoryId: "violencia_sexual",
+        text: "Han difós o han amenaçat de difondre fotos o vídeos íntims teus sense el teu consentiment (o et pressionen perquè n'enviïs)?",
+        context: "Inclou el xantatge emocional o econòmic (sextorsió) per evitar que es publiqui material privat."
+      },
+      {
+        categoryId: "violencia_sexual",
+        text: "Han creat o manipulat imatges o vídeos teus amb contingut sexual (per exemple, mitjançant intel·ligència artificial o muntatges) sense el teu permís?",
+        context: "Qualsevol manipulació digital del teu cos o rostre amb finalitat sexual o vexatòria."
+      },
+      {
+        categoryId: "discurs_odi",
+        text: "Has rebut atacs, comentaris misògins o desqualificacions pel fet de ser dona quan expresses la teva opinió a internet?",
+        context: "Missatges que busquen silenciar-te, menysprear-te o ridiculitzar-te per raó de gènere."
+      },
+      {
+        categoryId: "discurs_odi",
+        text: "Has estat objecte d'amenaces de violència sexual, violació o mort, o d'una allau de missatges d'odi a les xarxes socials?",
+        context: "Atacs individuals o coordinats que inciten a l'odi o a la violència contra tu."
+      },
+      {
+        categoryId: "doxing",
+        text: "Algú ha publicat o compartit sense el teu permís dades privades teves com el teu telèfon, adreça, lloc de treball o centre d'estudis?",
+        context: "Aquesta pràctica (doxing) busca exposar-te o facilitar que altres persones et fustiguin o et localitzin."
+      },
+      {
+        categoryId: "doxing",
+        text: "Han creat perfils falsos fent-se passar per tu a les xarxes socials o aplicacions per perjudicar la teva imatge o contactar amb altra gent?",
+        context: "Inclou l'ús de les teves fotografies i nom sense autorització per suplantar la teva identitat."
+      }
+    ];
+
+    const ANSWER_OPTIONS = [
+      {
+        value: "active",
+        label: "Sí, m'està passant ara",
+        sub: "És una situació actual o molt recent.",
+        score: 3
+      },
+      {
+        value: "past",
+        label: "Sí, m'ha passat en el passat",
+        sub: "Va succeir anteriorment, però ara sembla que s'ha aturat.",
+        score: 2
+      },
+      {
+        value: "doubt",
+        label: "No estic segura / Tinc dubtes",
+        sub: "Hi ha senyals que em fan sospitar o sentir incòmoda.",
+        score: 1
+      },
+      {
+        value: "none",
+        label: "No m'ha passat mai",
+        sub: "No identifico aquesta situació.",
+        score: 0
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(QUESTIONS.length).fill(null);
+
+    const topPrimaryLabel = document.getElementById("topPrimaryLabel");
+    const heroHeader = document.getElementById("heroHeader");
+    const screenIntro = document.getElementById("screenIntro");
+    const screenQuiz = document.getElementById("screenQuiz");
+    const screenResults = document.getElementById("screenResults");
+
+    const footerBrand = document.getElementById("footerBrand");
+    const footerDate = document.getElementById("footerDate");
+    const footerNote = document.getElementById("footerNote");
+
+    const btnQuickExit = document.getElementById("btnQuickExit");
+    const btnStartQuiz = document.getElementById("btnStartQuiz");
+    const btnToggleGlossary = document.getElementById("btnToggleGlossary");
+    const glossaryPanel = document.getElementById("glossaryPanel");
+    const glossaryGrid = document.getElementById("glossaryGrid");
+
+    const progressStepText = document.getElementById("progressStepText");
+    const progressPercentText = document.getElementById("progressPercentText");
+    const progressFill = document.getElementById("progressFill");
+    const questionText = document.getElementById("questionText");
+    const questionContext = document.getElementById("questionContext");
+    const optionsList = document.getElementById("optionsList");
+    const btnPrevQuestion = document.getElementById("btnPrevQuestion");
+    const btnNextQuestion = document.getElementById("btnNextQuestion");
+
+    const btnPrintResults = document.getElementById("btnPrintResults");
+    const btnRestartQuiz = document.getElementById("btnRestartQuiz");
+
+    const now = new Date();
+    const formattedDate = `${String(now.getDate()).padStart(2, "0")}/${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
+
+    function triggerQuickExit() {
+      userAnswers = [];
+      try {
+        sessionStorage.clear();
+        localStorage.clear();
+      } catch (e) {}
+      window.location.replace("https://www.google.com");
+    }
+
+    btnQuickExit.addEventListener("click", triggerQuickExit);
+
+    let lastEscTime = 0;
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        const current = Date.now();
+        if (current - lastEscTime < 700) {
+          triggerQuickExit();
+        }
+        lastEscTime = current;
+      }
+    });
+
+    function renderGlossary() {
+      glossaryGrid.innerHTML = CATEGORIES.map(cat => `
+        <div class="glossary-cell">
+          <h3>${cat.name}</h3>
+          <p>${cat.description}</p>
+          <div class="glossary-ex"><strong>Exemples:</strong> ${cat.examples}</div>
+        </div>
+      `).join("");
+    }
+
+    btnToggleGlossary.addEventListener("click", () => {
+      const isHidden = glossaryPanel.classList.toggle("hidden");
+      btnToggleGlossary.textContent = isHidden
+        ? "Explorar les 6 categories"
+        : "Amagar les categories";
+    });
+
+    function showScreen(screen, isIntro) {
+      screenIntro.classList.add("hidden");
+      screenQuiz.classList.add("hidden");
+      screenResults.classList.add("hidden");
+      screen.classList.remove("hidden");
+
+      if (isIntro) {
+        heroHeader.classList.remove("hidden");
+        topPrimaryLabel.textContent = "";
+        footerBrand.textContent = "";
+        footerDate.textContent = "";
+        footerNote.textContent = "";
+      } else {
+        heroHeader.classList.add("hidden");
+        topPrimaryLabel.textContent = "DETECTOR DE VIOLÈNCIES DIGITALS";
+        footerBrand.textContent = "Detector de Violències Digitals";
+        footerDate.textContent = formattedDate;
+        footerNote.textContent = "Ús confidencial · Sense emmagatzematge";
+      }
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    btnStartQuiz.addEventListener("click", () => {
+      currentQuestionIndex = 0;
+      userAnswers = new Array(QUESTIONS.length).fill(null);
+      renderQuestion();
+      showScreen(screenQuiz, false);
+    });
+
+    function renderQuestion() {
+      const q = QUESTIONS[currentQuestionIndex];
+      const total = QUESTIONS.length;
+      const step = currentQuestionIndex + 1;
+      const pct = Math.round((step / total) * 100);
+
+      progressStepText.textContent = `PREGUNTA ${String(step).padStart(2, "0")} DE ${total}`;
+      progressPercentText.textContent = `${pct}% COMPLETAT`;
+      progressFill.style.width = `${pct}%`;
+
+      questionText.textContent = q.text;
+      questionContext.textContent = q.context;
+
+      const selectedVal = userAnswers[currentQuestionIndex];
+
+      optionsList.innerHTML = ANSWER_OPTIONS.map(opt => {
+        const isSel = selectedVal === opt.value;
+        return `
+          <button type="button" class="option-row ${isSel ? "selected" : ""}" data-value="${opt.value}">
+            <span class="option-box-mark">${isSel ? "✓" : ""}</span>
+            <span>
+              <span class="option-main-text">${opt.label}</span>
+              <span class="option-sub-text">${opt.sub}</span>
+            </span>
+          </button>
+        `;
+      }).join("");
+
+      optionsList.querySelectorAll(".option-row").forEach(btn => {
+        btn.addEventListener("click", () => {
+          userAnswers[currentQuestionIndex] = btn.getAttribute("data-value");
+          renderQuestion();
+        });
+      });
+
+      btnPrevQuestion.style.visibility = currentQuestionIndex === 0 ? "hidden" : "visible";
+      btnNextQuestion.disabled = userAnswers[currentQuestionIndex] === null;
+      btnNextQuestion.textContent = currentQuestionIndex === total - 1
+        ? "Veure resultats →"
+        : "Següent →";
+    }
+
+    btnPrevQuestion.addEventListener("click", () => {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        renderQuestion();
+      }
+    });
+
+    btnNextQuestion.addEventListener("click", () => {
+      if (userAnswers[currentQuestionIndex] === null) return;
+      if (currentQuestionIndex < QUESTIONS.length - 1) {
+        currentQuestionIndex++;
+        renderQuestion();
+      } else {
+        generateResults();
+        showScreen(screenResults, false);
+      }
+    });
+
+    function generateResults() {
+      const categoryStats = CATEGORIES.map(cat => {
+        const qIndices = QUESTIONS
+          .map((q, idx) => (q.categoryId === cat.id ? idx : -1))
+          .filter(idx => idx !== -1);
+
+        const answers = qIndices.map(idx => userAnswers[idx]);
+
+        let activePoints = 0;
+        let totalPoints = 0;
+
+        answers.forEach(ans => {
+          if (ans === "active") {
+            activePoints += 3;
+            totalPoints += 3;
+          } else if (ans === "past") {
+            totalPoints += 2;
+          } else if (ans === "doubt") {
+            activePoints += 1;
+            totalPoints += 1;
+          }
+        });
+
+        const maxPoints = qIndices.length * 3;
+        const activePct = Math.round((activePoints / maxPoints) * 100);
+        const totalPct = Math.round((totalPoints / maxPoints) * 100);
+
+        let status = "none";
+        if (answers.includes("active")) {
+          status = "active";
+        } else if (answers.includes("past")) {
+          status = "past";
+        } else if (answers.includes("doubt")) {
+          status = "doubt";
+        }
+
+        return {
+          ...cat,
+          answers,
+          activePct,
+          totalPct,
+          status
+        };
+      });
+
+      const activeCount = categoryStats.filter(c => c.status === "active").length;
+      const pastCount = categoryStats.filter(c => c.status === "past").length;
+      const doubtCount = categoryStats.filter(c => c.status === "doubt").length;
+      const globalIndex = Math.round(
+        categoryStats.reduce((acc, c) => acc + c.totalPct, 0) / categoryStats.length
+      );
+
+      const verdictBanner = document.getElementById("verdictBanner");
+      const verdictCode = document.getElementById("verdictCode");
+      const verdictTitle = document.getElementById("verdictTitle");
+      const verdictDescription = document.getElementById("verdictDescription");
+
+      verdictBanner.className = "verdict-panel";
+
+      if (activeCount > 0) {
+        verdictBanner.classList.add("is-high");
+        verdictCode.textContent = "RESULTAT / INDICIS ACTIUS DETECTATS";
+        verdictTitle.textContent = `Violència digital activa en ${activeCount} ${activeCount === 1 ? "categoria" : "categories"}`;
+        verdictDescription.textContent = "Les teves respostes mostren situacions que estàs vivint actualment i que vulneren els teus drets i la teva seguretat digital. No n'ets responsable i hi ha recursos gratuïts i confidencials per ajudar-te a aturar-ho.";
+      } else if (pastCount > 0 || doubtCount > 0) {
+        verdictBanner.classList.add("is-medium");
+        verdictCode.textContent = "RESULTAT / EXPERIÈNCIES PASSADES O ALERTA";
+        verdictTitle.textContent = "S'han identificat episodis passats o senyals d'alerta";
+        verdictDescription.textContent = "Tot i que no hagis marcat agressions actives en aquest moment, has viscut situacions de violència digital en el passat o tens dubtes raonables. Revisar la seguretat dels teus comptes et permetrà prevenir nous episodis.";
+      } else {
+        verdictCode.textContent = "RESULTAT / SENSE INDICIS DETECTATS";
+        verdictTitle.textContent = "No s'han detectat indicis de violència digital";
+        verdictDescription.textContent = "Actualment no identifiques cap de les situacions avaluades. Mantén bones pràctiques de privacitat i seguretat digital, i recorda que pots tornar a consultar aquesta guia sempre que ho necessitis.";
+      }
+
+      const kpiRow = document.getElementById("kpiRow");
+      kpiRow.innerHTML = `
+        <div class="kpi-cell">
+          <div class="kpi-num" style="color: ${activeCount > 0 ? "var(--accent-alert)" : "var(--ink)"};">0${activeCount} / 06</div>
+          <div class="kpi-lbl">Tipologies actives</div>
+        </div>
+        <div class="kpi-cell">
+          <div class="kpi-num">0${pastCount} / 06</div>
+          <div class="kpi-lbl">En el passat</div>
+        </div>
+        <div class="kpi-cell">
+          <div class="kpi-num">0${doubtCount} / 06</div>
+          <div class="kpi-lbl">Amb dubtes</div>
+        </div>
+        <div class="kpi-cell">
+          <div class="kpi-num">${globalIndex}%</div>
+          <div class="kpi-lbl">Índex global</div>
+        </div>
+      `;
+
+      renderRadarChart(categoryStats);
+
+      const axisBreakdown = document.getElementById("axisBreakdown");
+      axisBreakdown.innerHTML = categoryStats.map(cat => {
+        let labelVal = "0% · SENSE INDICIS";
+        let isAlert = false;
+        if (cat.status === "active") {
+          labelVal = `${cat.totalPct}% · ACTIVA`;
+          isAlert = true;
+        } else if (cat.status === "past") {
+          labelVal = `${cat.totalPct}% · PASSAT`;
+        } else if (cat.status === "doubt") {
+          labelVal = `${cat.totalPct}% · ALERTA`;
+        }
+
+        return `
+          <div class="axis-row-cell">
+            <div class="axis-row-head">
+              <span class="axis-row-name">${cat.shortName}</span>
+              <span class="axis-row-val">${labelVal}</span>
+            </div>
+            <div class="axis-meter">
+              <div class="axis-meter-bar ${isAlert ? "is-alert" : ""}" style="width: ${cat.totalPct}%;"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      const statusOrder = { active: 0, doubt: 1, past: 2, none: 3 };
+      const sortedCategories = [...categoryStats].sort(
+        (a, b) => statusOrder[a.status] - statusOrder[b.status]
+      );
+
+      const container = document.getElementById("categoryResultsContainer");
+      container.innerHTML = sortedCategories.map(cat => {
+        let badgeClass = "";
+        let badgeText = "Sense indicis";
+
+        if (cat.status === "active") {
+          badgeClass = "active";
+          badgeText = "Situació actual";
+        } else if (cat.status === "past") {
+          badgeClass = "past";
+          badgeText = "Experiència passada";
+        } else if (cat.status === "doubt") {
+          badgeText = "Senyals d'alerta";
+        }
+
+        const showAdvice = cat.status !== "none";
+
+        return `
+          <div class="cat-detail-box">
+            <div class="cat-detail-top">
+              <h4>${cat.name}</h4>
+              <span class="cat-badge ${badgeClass}">${badgeText}</span>
+            </div>
+            <div class="cat-detail-body">
+              <p class="cat-detail-desc">${cat.description}</p>
+              ${showAdvice ? `
+                <div class="cat-advice-list">
+                  <strong>Pautes d'actuació recomanades:</strong>
+                  <ul>
+                    ${cat.advice.map(item => `<li>${item}</li>`).join("")}
+                  </ul>
+                </div>
+              ` : ""}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderRadarChart(stats) {
+      const svg = document.getElementById("radarSvg");
+      const tooltip = document.getElementById("radarTooltip");
+      const cx = 230;
+      const cy = 195;
+      const maxRadius = 115;
+      const levels = 4;
+      const numAxes = stats.length;
+
+      let svgContent = "";
+
+      for (let lvl = 1; lvl <= levels; lvl++) {
+        const r = (maxRadius / levels) * lvl;
+        const points = [];
+        for (let i = 0; i < numAxes; i++) {
+          const angle = (Math.PI * 2 * i) / numAxes - Math.PI / 2;
+          const x = cx + r * Math.cos(angle);
+          const y = cy + r * Math.sin(angle);
+          points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+        }
+        svgContent += `
+          <polygon
+            points="${points.join(" ")}"
+            fill="none"
+            stroke="#b8b3aa"
+            stroke-width="0.9"
+          />
+        `;
+        const pctLabel = Math.round((100 / levels) * lvl);
+        svgContent += `
+          <text x="${cx + 4}" y="${cy - r + 10}" font-size="8.5" fill="#68645e" font-family="Helvetica Neue, Arial, sans-serif">
+            ${pctLabel}%
+          </text>
+        `;
+      }
+
+      stats.forEach((cat, i) => {
+        const angle = (Math.PI * 2 * i) / numAxes - Math.PI / 2;
+        const xEnd = cx + maxRadius * Math.cos(angle);
+        const yEnd = cy + maxRadius * Math.sin(angle);
+
+        svgContent += `
+          <line
+            x1="${cx}" y1="${cy}"
+            x2="${xEnd.toFixed(1)}" y2="${yEnd.toFixed(1)}"
+            stroke="#b8b3aa"
+            stroke-width="0.9"
+          />
+        `;
+
+        const labelRadius = maxRadius + 22;
+        const lx = cx + labelRadius * Math.cos(angle);
+        const ly = cy + labelRadius * Math.sin(angle);
+
+        let textAnchor = "middle";
+        if (Math.cos(angle) > 0.25) textAnchor = "start";
+        if (Math.cos(angle) < -0.25) textAnchor = "end";
+
+        const dy = Math.sin(angle) > 0.5 ? 10 : (Math.sin(angle) < -0.5 ? -4 : 4);
+
+        svgContent += `
+          <text
+            x="${lx.toFixed(1)}"
+            y="${(ly + dy).toFixed(1)}"
+            text-anchor="${textAnchor}"
+            font-size="10"
+            font-weight="700"
+            fill="#3b3936"
+            font-family="Helvetica Neue, Arial, sans-serif"
+          >
+            ${cat.shortName.toUpperCase()}
+          </text>
+        `;
+      });
+
+      const totalPointsArr = stats.map((cat, i) => {
+        const angle = (Math.PI * 2 * i) / numAxes - Math.PI / 2;
+        const valRatio = Math.max(cat.totalPct, 5) / 100;
+        const r = maxRadius * valRatio;
+        return `${(cx + r * Math.cos(angle)).toFixed(1)},${(cy + r * Math.sin(angle)).toFixed(1)}`;
+      });
+
+      svgContent += `
+        <polygon
+          points="${totalPointsArr.join(" ")}"
+          fill="rgba(59, 57, 54, 0.12)"
+          stroke="#3b3936"
+          stroke-width="1.8"
+        />
+      `;
+
+      const activePointsArr = stats.map((cat, i) => {
+        const angle = (Math.PI * 2 * i) / numAxes - Math.PI / 2;
+        const valRatio = Math.max(cat.activePct, 3) / 100;
+        const r = maxRadius * valRatio;
+        return `${(cx + r * Math.cos(angle)).toFixed(1)},${(cy + r * Math.sin(angle)).toFixed(1)}`;
+      });
+
+      svgContent += `
+        <polygon
+          points="${activePointsArr.join(" ")}"
+          fill="rgba(158, 42, 43, 0.16)"
+          stroke="#9e2a2b"
+          stroke-width="1.8"
+          stroke-dasharray="4 3"
+        />
+      `;
+
+      stats.forEach((cat, i) => {
+        const angle = (Math.PI * 2 * i) / numAxes - Math.PI / 2;
+        const rTotal = maxRadius * (Math.max(cat.totalPct, 5) / 100);
+        const px = cx + rTotal * Math.cos(angle);
+        const py = cy + rTotal * Math.sin(angle);
+
+        const dotColor = cat.status === "active" ? "#9e2a2b" : "#3b3936";
+
+        svgContent += `
+          <rect
+            class="radar-point"
+            data-index="${i}"
+            x="${(px - 4).toFixed(1)}"
+            y="${(py - 4).toFixed(1)}"
+            width="8"
+            height="8"
+            fill="${dotColor}"
+            stroke="#f4f2ee"
+            stroke-width="1.5"
+            style="cursor: pointer;"
+          />
+        `;
+      });
+
+      svg.innerHTML = svgContent;
+
+      svg.querySelectorAll(".radar-point").forEach(pt => {
+        const updateTip = () => {
+          const idx = parseInt(pt.getAttribute("data-index"), 10);
+          const item = stats[idx];
+          tooltip.innerHTML = `<strong>${item.name.toUpperCase()}:</strong>&nbsp;Acumulada ${item.totalPct}% · Actual ${item.activePct}%`;
+        };
+        pt.addEventListener("mouseenter", updateTip);
+        pt.addEventListener("click", updateTip);
+      });
+    }
+
+    btnPrintResults.addEventListener("click", () => {
+      window.print();
+    });
+
+    btnRestartQuiz.addEventListener("click", () => {
+      currentQuestionIndex = 0;
+      userAnswers = new Array(QUESTIONS.length).fill(null);
+      showScreen(screenIntro, true);
+    });
+
+    renderGlossary();
+  </script>
+</body>
+</html>
